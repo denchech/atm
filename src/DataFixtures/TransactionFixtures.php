@@ -35,8 +35,8 @@ class TransactionFixtures extends Fixture
         $card = $this->getReference(Card::class.'_'.$index);
 
         $transaction->setFirstCard($card);
-        $transaction->setValue((string) rand(1, 10000) / 100);
-        $transaction->setStatus(TransactionStatusType::CANCELED);
+        $transaction->setValue(rand(1, 10000) / 100);
+        $transaction->setStatus(TransactionStatusType::CANCELLED);
 
         return $transaction;
     }

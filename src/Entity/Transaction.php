@@ -43,7 +43,7 @@ class Transaction
     /**
      * @ORM\Column(type="decimal", precision=12, scale=2)
      */
-    private float $value;
+    private string $value;
 
     public function getId(): ?int
     {
@@ -90,7 +90,7 @@ class Transaction
         $this->status = $status;
     }
 
-    public function getValue(): ?string
+    public function getValue(): string
     {
         return $this->value;
     }

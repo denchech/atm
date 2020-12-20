@@ -20,6 +20,14 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
+    public function save(Transaction $transaction): void
+    {
+        $manager = $this->getEntityManager();
+
+        $manager->persist($transaction);
+        $manager->flush($transaction);
+    }
+
 //    /**
 //     * @param Card $card
 //     * @return Transaction[]

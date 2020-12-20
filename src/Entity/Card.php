@@ -41,7 +41,7 @@ class Card
         $this->number = $number;
     }
 
-    public final function getBalance(): ?string
+    public final function getBalance(): string
     {
         return $this->balance;
     }

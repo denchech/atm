@@ -35,6 +35,9 @@ class Transaction
      */
     private string $operation;
 
+    /**
+     * @ORM\Column(type="TransactionStatusType", nullable=false)
+     */
     private string $status = TransactionStatusType::STARTED;
 
     /**

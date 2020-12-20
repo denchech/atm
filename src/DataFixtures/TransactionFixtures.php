@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\DBAL\Types\OperationType;
+use App\DBAL\Types\TransactionStatusType;
 use App\Entity\Card;
 use App\Entity\Transaction;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -35,6 +36,7 @@ class TransactionFixtures extends Fixture
 
         $transaction->setFirstCard($card);
         $transaction->setValue((string) rand(1, 10000) / 100);
+        $transaction->setStatus(TransactionStatusType::CANCELED);
 
         return $transaction;
     }
@@ -49,6 +51,7 @@ class TransactionFixtures extends Fixture
 
         $transaction->setFirstCard($card);
         $transaction->setValue((string) rand(1, 10000) / 100);
+        $transaction->setStatus(TransactionStatusType::FINISHED);
 
         return $transaction;
     }
@@ -67,6 +70,7 @@ class TransactionFixtures extends Fixture
         $transaction->setFirstCard($firstCard);
         $transaction->setSecondCard($secondCard);
         $transaction->setValue((string) rand(1, 10000) / 100);
+        $transaction->setStatus(TransactionStatusType::FINISHED);
 
         return $transaction;
     }

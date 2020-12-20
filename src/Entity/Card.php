@@ -24,7 +24,7 @@ class Card
     /**
      * @ORM\Column(type="decimal", precision=12, scale=2)
      */
-    private float $balance;
+    private string $balance;
 
     /**
      * @ORM\Column(type="CardType", nullable=false)

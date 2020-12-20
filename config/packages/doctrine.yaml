@@ -4,6 +4,7 @@ doctrine:
         server_version: 'mariadb-10.4.11'
         types:
             CardType: App\DBAL\Types\CardType
+            OperationType: App\DBAL\Types\OperationType
 
     orm:
         auto_generate_proxy_classes: true

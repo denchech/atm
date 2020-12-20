@@ -9,12 +9,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class CardFixtures extends Fixture
 {
-    private const COUNT = 3;
-    private const TYPES = [
-        CardType::DEFAULT,
-        CardType::PREMIUM,
-        CardType::CREDIT,
-    ];
+    public const COUNT = 3;
 
     public function load(ObjectManager $manager): void
     {
@@ -22,10 +17,12 @@ class CardFixtures extends Fixture
             $debitCard = new Card();
             $debitCard->setNumber(str_repeat('0', 9 - intdiv($i, 10)).$i);
             $debitCard->setPin('0000');
-            $debitCard->setBalance(0.0);
-            $debitCard->setType(self::TYPES[$i % count(self::TYPES)]);
+            $debitCard->setBalance((string) rand(10000, 100000) / 100);
+            $debitCard->setType(CardType::getValues()[$i % count(CardType::getValues())]);
 
             $manager->persist($debitCard);
+
+            $this->addReference(Card::class . '_' . $i, $debitCard);
         }
 
         $manager->flush();

@@ -1,7 +1,15 @@
 security:
+    always_authenticate_before_granting: true
+    encoders:
+        App\Entity\Card:
+            algorithm: auto
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        users_in_memory: { memory: null }
+#        users_in_memory: { memory: null }
+        app_user_provider:
+            entity:
+                class: App\Entity\Card
+                property: number
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -9,13 +17,25 @@ security:
         main:
             anonymous: true
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+            guard:
+                authenticators:
+                    - App\Security\CardAuthenticator
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                target: app_login
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
+
+    role_hierarchy:
+        ROLE_DEFAULT: [ROLE_RECHARGE, ROLE_WITHDRAWAL, ROLE_TRANSFER]
+        ROLE_CREDIT: [ROLE_RECHARGE]
+        ROLE_PREMIUM: [ROLE_DEFAULT, ROLE_CURRENCY_OPERATION]
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used

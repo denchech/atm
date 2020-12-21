@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
+use App\DBAL\Types\CardType;
 use App\Repository\CardRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=CardRepository::class)
  */
-class Card
+class Card implements UserInterface
 {
     /**
      * @ORM\Id
@@ -17,7 +19,7 @@ class Card
     private string $number;
 
     /**
-     * @ORM\Column(type="string", length=4)
+     * @ORM\Column(type="string")
      */
     private string $pin;
 
@@ -51,11 +53,6 @@ class Card
         $this->balance = $balance;
     }
 
-    public final function getPin(): ?string
-    {
-        return $this->pin;
-    }
-
     public final function setPin(string $pin): void
     {
         $this->pin = $pin;
@@ -69,5 +66,28 @@ class Card
     public function setType(string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getRoles(): array
+    {
+        return ['ROLE_'.CardType::getReadableValue($this->type)];
+    }
+
+    public function getPassword(): string
+    {
+        return $this->pin;
+    }
+
+    public function getSalt()
+    {
+    }
+
+    public function getUsername(): string
+    {
+        return $this->number;
+    }
+
+    public function eraseCredentials()
+    {
     }
 }

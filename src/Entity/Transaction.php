@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\DBAL\Types\TransactionStatusType;
 use App\Repository\TransactionRepository;
+use App\Service\TransactionError;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -44,6 +45,8 @@ class Transaction
      * @ORM\Column(type="decimal", precision=12, scale=2)
      */
     private string $value;
+
+    private TransactionError $error;
 
     public function getId(): ?int
     {
@@ -98,5 +101,20 @@ class Transaction
     public function setValue(string $value): void
     {
         $this->value = $value;
+    }
+
+    public function getError(): TransactionError
+    {
+        return $this->error;
+    }
+
+    public function setError(TransactionError $error): void
+    {
+        $this->error = $error;
+    }
+
+    public function isCancelled(): bool
+    {
+        return TransactionStatusType::CANCELLED === $this->status;
     }
 }

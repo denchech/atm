@@ -18,4 +18,12 @@ class CardRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Card::class);
     }
+
+    public function save(Card $card): void
+    {
+        $manager = $this->getEntityManager();
+
+        $manager->persist($card);
+        $manager->flush($card);
+    }
 }

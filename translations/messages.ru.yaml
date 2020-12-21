@@ -1,0 +1,3 @@
+notEnoughWherewithal: 'Не достаточно средств.'
+cardNotFound: 'Эта карта не найдена.'
+cannotTransferToSameCard: 'Вы не можете сделать перевод на ту же карту.'

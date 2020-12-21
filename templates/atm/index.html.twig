@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ATM{% endblock %}
+
+{% block body %}
+    {% if is_granted('ROLE_RECHARGE') %}
+    <a href="{{ path('recharge') }}">Recharge</a>
+    {% endif %}
+    {% if is_granted('ROLE_WITHDRAWAL') %}
+    <a href="{{ path('withdraw') }}">Withdraw</a>
+    {% endif %}
+    {% if is_granted('ROLE_TRANSFER') %}
+    <a href="{{ path('transfer') }}">Transfer</a>
+    {% endif %}
+{% endblock %}

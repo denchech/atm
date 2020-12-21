@@ -11,8 +11,8 @@ final class CardType extends AbstractEnumType
     public const PREMIUM = 'P';
 
     protected static $choices = [
-        self::DEFAULT => 'Default',
-        self::CREDIT  => 'Credit',
-        self::PREMIUM => 'Premium',
+        self::DEFAULT => 'DEFAULT',
+        self::CREDIT  => 'CREDIT',
+        self::PREMIUM => 'PREMIUM',
     ];
 }

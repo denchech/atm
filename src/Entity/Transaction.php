@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
+use App\DBAL\Types\CurrencyType;
 use App\DBAL\Types\TransactionStatusType;
 use App\Repository\TransactionRepository;
-use App\Service\TransactionError;
+use App\Error\TransactionError;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -46,7 +47,12 @@ class Transaction
      */
     private string $value;
 
-    private TransactionError $error;
+    private ?TransactionError $error = null;
+
+    /**
+     * @ORM\Column(type="CurrencyType")
+     */
+    private string $currency = CurrencyType::RUBLES;
 
     public function getId(): ?int
     {
@@ -103,7 +109,7 @@ class Transaction
         $this->value = $value;
     }
 
-    public function getError(): TransactionError
+    public function getError(): ?TransactionError
     {
         return $this->error;
     }
@@ -116,5 +122,15 @@ class Transaction
     public function isCancelled(): bool
     {
         return TransactionStatusType::CANCELLED === $this->status;
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency($currency): void
+    {
+        $this->currency = $currency;
     }
 }

@@ -6,6 +6,7 @@ doctrine:
             CardType: App\DBAL\Types\CardType
             OperationType: App\DBAL\Types\OperationType
             TransactionStatusType: App\DBAL\Types\TransactionStatusType
+            CurrencyType: App\DBAL\Types\CurrencyType
 
     orm:
         auto_generate_proxy_classes: true

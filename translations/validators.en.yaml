@@ -1,4 +1,3 @@
 positive: 'This value must be positive.'
-cannotBeMore: 'This value cannot be more than 9999999999.'
 notBlank: 'This value cannot be blank.'
 mustContainNumber: 'This value must contain only numbers.'

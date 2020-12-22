@@ -3,6 +3,9 @@ security:
     encoders:
         App\Entity\Card:
             algorithm: auto
+        App\Entity\Employee:
+            algorithm: auto
+
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
 #        users_in_memory: { memory: null }
@@ -10,13 +13,45 @@ security:
             entity:
                 class: App\Entity\Card
                 property: number
+        app_employee_provider:
+            entity:
+                class: App\Entity\Employee
+                property: uuid
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
+
+        employee:
+            pattern: ^/employee/*
             anonymous: true
             lazy: true
+            form_login:
+                login_path: /employee/login
+                check_path: /employee/login_check
+                default_target_path: /employee/login
+                username_parameter: uuid
+                password_parameter: password
+            provider: app_employee_provider
+            guard:
+                authenticators:
+                    - App\Security\EmployeeAuthenticator
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                target: app_login
+
+        user:
+            pattern: ^/*
+            anonymous: true
+            lazy: true
+            form_login:
+                login_path: /login
+                check_path: /login_check
+                default_target_path: /login
+                username_parameter: number
+                password_parameter: pin
             provider: app_user_provider
             guard:
                 authenticators:

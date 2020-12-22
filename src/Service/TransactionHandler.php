@@ -2,9 +2,12 @@
 
 namespace App\Service;
 
+use App\DBAL\Types\CardType;
+use App\DBAL\Types\CurrencyType;
 use App\DBAL\Types\OperationType;
 use App\DBAL\Types\TransactionStatusType;
 use App\Entity\Transaction;
+use App\Error\TransactionError;
 
 class TransactionHandler
 {
@@ -42,19 +45,45 @@ class TransactionHandler
 
     private function recharge(Transaction $transaction): void
     {
-        $value   = $transaction->getValue();
-        $card    = $transaction->getFirstCard();
-        $balance = $card->getBalance();
+        $value    = $transaction->getValue();
+        $card     = $transaction->getFirstCard();
+        $currency = $transaction->getCurrency();
+        $balance  = $card->getBalance($currency);
 
-        $card->setBalance(bcadd($balance, $value, 2));
+        if (CurrencyType::RUBLES !== $currency && CardType::PREMIUM !== $card->getType()) {
+            $transaction->setStatus(TransactionStatusType::CANCELLED);
+            $transaction->setError(
+                $this->createTransactionError(
+                    TransactionError::NOT_ALLOWED_TO_CHOOSE_CURRENCY,
+                    'currency'
+                )
+            );
+
+            return;
+        }
+
+        $card->setBalance(bcadd($balance, $value, 2), $currency);
         $transaction->setStatus(TransactionStatusType::FINISHED);
     }
 
     private function withdraw(Transaction $transaction): void
     {
-        $value   = $transaction->getValue();
-        $card    = $transaction->getFirstCard();
-        $balance = $card->getBalance();
+        $value    = $transaction->getValue();
+        $card     = $transaction->getFirstCard();
+        $currency = $transaction->getCurrency();
+        $balance  = $card->getBalance($currency);
+
+        if (CurrencyType::RUBLES !== $currency && CardType::PREMIUM !== $card->getType()) {
+            $transaction->setStatus(TransactionStatusType::CANCELLED);
+            $transaction->setError(
+                $this->createTransactionError(
+                    TransactionError::NOT_ALLOWED_TO_CHOOSE_CURRENCY,
+                    'currency'
+                )
+            );
+
+            return;
+        }
 
         if (-1 === bccomp($balance, $value, 2)) {
             $transaction->setStatus(TransactionStatusType::CANCELLED);
@@ -65,7 +94,7 @@ class TransactionHandler
                 )
             );
         } else {
-            $card->setBalance(bcsub($balance, $value, 2));
+            $card->setBalance(bcsub($balance, $value, 2), $currency);
             $transaction->setStatus(TransactionStatusType::FINISHED);
         }
     }
@@ -96,13 +125,29 @@ class TransactionHandler
             return;
         }
 
-        $value = $transaction->getValue();
+        $currency = $transaction->getCurrency();
+        $value    = $transaction->getValue();
 
         $firstCard    = $transaction->getFirstCard();
-        $firstBalance = $firstCard->getBalance();
+        $firstBalance = $firstCard->getBalance($currency);
 
         $secondCard    = $transaction->getSecondCard();
-        $secondBalance = $secondCard->getBalance();
+        $secondBalance = $secondCard->getBalance($currency);
+
+        if (
+            CurrencyType::RUBLES !== $currency &&
+            (CardType::PREMIUM !== $firstCard->getType() || CardType::PREMIUM !== $secondCard->getType())
+        ) {
+            $transaction->setStatus(TransactionStatusType::CANCELLED);
+            $transaction->setError(
+                $this->createTransactionError(
+                    TransactionError::NOT_ALLOWED_TO_CHOOSE_CURRENCY,
+                    'currency'
+                )
+            );
+
+            return;
+        }
 
         if (-1 === bccomp($firstBalance, $value, 2)) {
             $transaction->setStatus(TransactionStatusType::CANCELLED);
@@ -113,8 +158,8 @@ class TransactionHandler
                 )
             );
         } else {
-            $firstCard->setBalance(bcsub($firstBalance, $value, 2));
-            $secondCard->setBalance(bcadd($secondBalance, $value, 2));
+            $firstCard->setBalance(bcsub($firstBalance, $value, 2), $currency);
+            $secondCard->setBalance(bcadd($secondBalance, $value, 2), $currency);
             $transaction->setStatus(TransactionStatusType::FINISHED);
         }
     }

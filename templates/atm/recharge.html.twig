@@ -1,7 +1,12 @@
-{% extends 'base.html.twig' %}
+{% extends 'atm/user.html.twig' %}
 
 {% block title %}Recharge{% endblock %}
 
 {% block body %}
-    {{ form(form) }}
+    {{ form_start(form) }}
+        {% if not is_granted('ROLE_CURRENCY_OPERATION') %}
+            {{ form_row(form.currency, {'disabled': 'disabled'}) }}
+        {% endif %}
+        {{ form_rest(form) }}
+    {{ form_end(form)}}
 {% endblock %}

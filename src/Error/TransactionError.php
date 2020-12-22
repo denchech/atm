@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Service;
+namespace App\Error;
 
 class TransactionError
 {
-    public const NOT_ENOUGH_WHEREWITHAL       = 'notEnoughWherewithal';
-    public const CARD_NOT_FOUND               = 'cardNotFound';
-    public const CANNOT_TRANSFER_TO_SAME_CARD = 'cannotTransferToSameCard';
+    public const NOT_ENOUGH_WHEREWITHAL         = 'notEnoughWherewithal';
+    public const CARD_NOT_FOUND                 = 'cardNotFound';
+    public const CANNOT_TRANSFER_TO_SAME_CARD   = 'cannotTransferToSameCard';
+    public const NOT_ALLOWED_TO_CHOOSE_CURRENCY = 'notAllowedToChooseCurrency';
 
     private string $message;
 

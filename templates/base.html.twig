@@ -10,9 +10,10 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    {% if app.user %}
-                        <a class="nav-item nav-link " href="{{ path('app_logout') }}">Return Card</a>
-                        <a class="nav-item nav-link " href="{{ path('index') }}">Choose Operation</a>
+                    {% block navigation %}
+                    {% endblock %}
+                    {% if is_granted('IS_ANONYMOUS') %}
+                        <a class="nav-item nav-link " href="{{ path('employee_cash') }}">Add cash</a>
                     {% endif %}
                 </div>
             </div>

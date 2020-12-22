@@ -3,13 +3,13 @@
 namespace App\Tests\Unit;
 
 use App\DBAL\Types\CardType;
+use App\DBAL\Types\CurrencyType;
 use App\DBAL\Types\OperationType;
 use App\DBAL\Types\TransactionStatusType;
 use App\Entity\Card;
 use App\Entity\Transaction;
-use App\Repository\TransactionRepository;
 use App\Service\BankSystem;
-use App\Service\TransactionError;
+use App\Error\TransactionError;
 use App\Service\TransactionHandler;
 use PHPUnit\Framework\TestCase;
 
@@ -18,8 +18,6 @@ class TransactionHandlerTest extends TestCase
     private const FIRST_CARD_NUMBER  = '0000000000';
     private const SECOND_CARD_NUMBER = '0000000000';
     private const VALUE              = '10.50';
-
-    private TransactionRepository $transactionRepository;
 
     private BankSystem $bankSystem;
 
@@ -153,13 +151,15 @@ class TransactionHandlerTest extends TestCase
         string $operation,
         Card $firstCard,
         string $value,
-        Card $secondCard = null
+        Card $secondCard = null,
+        string $currency = CurrencyType::RUBLES
     ): Transaction {
         $transaction = new Transaction();
         $transaction->setOperation($operation);
         $transaction->setFirstCard($firstCard);
         $transaction->setValue($value);
         $transaction->setSecondCard($secondCard);
+        $transaction->setCurrency($currency);
 
         return $transaction;
     }

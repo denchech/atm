@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block navigation %}
+    <a class="nav-item nav-link " href="{{ path('app_logout') }}">Log out</a>
+{% endblock %}
+
+{% block body %}
+    {{ form(form) }}
+<h1>Current cash:</h1>
+    {% for cash in allCash %}
+        <h3>{{ cash.value }} {{ cash.currency|readable_enum('CurrencyType') }}: {{ cash.count }}</h3>
+    {% endfor %}
+{% endblock %}

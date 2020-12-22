@@ -2,13 +2,17 @@
 
 namespace App\Controller;
 
-use App\Command\TransactionCommand;
+use App\Command\CashCommand;
+use App\Command\WithdrawTransactionCommand;
 use App\Command\TransferTransactionCommand;
 use App\DBAL\Types\OperationType;
 use App\Entity\Card;
 use App\Entity\Transaction;
-use App\Form\TransactionFormType;
+use App\Error\CashError;
+use App\Form\CashFormType;
+use App\Form\WithdrawTransactionFormType;
 use App\Form\TransferTransactionFormType;
+use App\Service\Atm;
 use App\Service\BankSystem;
 use App\Service\TransactionHandler;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -28,14 +32,18 @@ class AtmController extends AbstractController
 
     private TranslatorInterface $translator;
 
+    private Atm $atm;
+
     public function __construct(
         TransactionHandler $transactionHandler,
         BankSystem $bankSystem,
+        Atm $atm,
         TranslatorInterface $translator
     ) {
         $this->transactionHandler = $transactionHandler;
         $this->bankSystem         = $bankSystem;
         $this->translator         = $translator;
+        $this->atm                = $atm;
     }
 
     /**
@@ -58,15 +66,45 @@ class AtmController extends AbstractController
      */
     public function recharge(Request $request): Response
     {
-        $command = new TransactionCommand();
-        $form    = $this->createForm(TransactionFormType::class, $command, ['submit' => 'recharge']);
+        $command = new CashCommand();
+
+        $form = $this->createForm(CashFormType::class, $command);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $transaction = $this->createTransaction(OperationType::RECHARGE, (string) $command->getValue());
+            if (!$this->atm->cashByCurrencyAndValueExists($command->getCurrency(), $command->getValue())) {
+                $message = $this->translator->trans(CashError::VALUE_DOES_NOT_EXIST);
+                $form->get('value')->addError(new FormError($message));
+
+                return $this->render(
+                    'atm/recharge.html.twig',
+                    [
+                        'form' => $form->createView(),
+                    ]
+                );
+            }
+
+            $value = $command->getValue() * $command->getCount();
+
+            $transaction = $this->createTransaction(
+                OperationType::RECHARGE,
+                (string) $value,
+                $command->getCurrency()
+            );
 
             $this->transactionHandler->process($transaction);
+
+            if ($transaction->isCancelled()) {
+                $this->addErrorToForm($form, $transaction);
+
+                return $this->render(
+                    'atm/withdraw.html.twig',
+                    [
+                        'form' => $form->createView(),
+                    ]
+                );
+            }
 
             return $this->success($transaction);
         }
@@ -85,13 +123,33 @@ class AtmController extends AbstractController
      */
     public function withdraw(Request $request): Response
     {
-        $command = new TransactionCommand();
-        $form    = $this->createForm(TransactionFormType::class, $command, ['submit' => 'withdraw']);
+        $command = new WithdrawTransactionCommand();
+        $form    = $this->createForm(WithdrawTransactionFormType::class, $command);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $transaction = $this->createTransaction(OperationType::WITHDRAWAL, (string) $command->getValue());
+            $preparedCash = $this->atm->prepareCash($command->getValue(), $command->getCurrency());
+
+            if (empty($preparedCash)) {
+                $message = $this->translator->trans(CashError::NO_CASH_FOR_VALUE);
+                $path    = 'value';
+
+                $form->get($path)->addError(new FormError($message));
+
+                return $this->render(
+                    'atm/withdraw.html.twig',
+                    [
+                        'form' => $form->createView(),
+                    ]
+                );
+            }
+
+            $transaction = $this->createTransaction(
+                OperationType::WITHDRAWAL,
+                (string) $command->getValue(),
+                $command->getCurrency()
+            );
 
             $this->transactionHandler->process($transaction);
 
@@ -105,6 +163,8 @@ class AtmController extends AbstractController
                     ]
                 );
             }
+
+            $this->atm->removeCash($preparedCash);
 
             return $this->success($transaction);
         }
@@ -131,7 +191,11 @@ class AtmController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $secondCard = $this->bankSystem->findCard($command->getSecondCard());
 
-            $transaction = $this->createTransaction(OperationType::TRANSFER, $command->getValue());
+            $transaction = $this->createTransaction(
+                OperationType::TRANSFER,
+                $command->getValue(),
+                $command->getCurrency()
+            );
             $transaction->setSecondCard($secondCard);
 
             $this->transactionHandler->process($transaction);
@@ -165,11 +229,12 @@ class AtmController extends AbstractController
             [
                 'transactionID' => $transaction->getId(),
                 'operation'     => $transaction->getOperation(),
+                'currency'      => $transaction->getCurrency(),
             ]
         );
     }
 
-    private function createTransaction(string $operation, string $value): Transaction
+    private function createTransaction(string $operation, string $value, string $currency): Transaction
     {
         /** @var Card $firstCard */
         $firstCard = $this->getUser();
@@ -178,6 +243,7 @@ class AtmController extends AbstractController
         $transaction->setOperation($operation);
         $transaction->setFirstCard($firstCard);
         $transaction->setValue($value);
+        $transaction->setCurrency($currency);
 
         return $transaction;
     }

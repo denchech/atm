@@ -2,6 +2,8 @@
 
 namespace App\Command;
 
+use App\DBAL\Types\CurrencyType;
+use Fresh\DoctrineEnumBundle\Validator\Constraints as DoctrineAssert;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class TransferTransactionCommand
@@ -18,6 +20,12 @@ class TransferTransactionCommand
      * @Assert\Length(10)
      */
     private string $secondCard;
+
+    /**
+     * @Assert\NotBlank()
+     * @DoctrineAssert\Enum(entity=CurrencyType::class)
+     */
+    private string $currency;
 
     public function getValue(): string
     {
@@ -37,5 +45,15 @@ class TransferTransactionCommand
     public function setSecondCard(string $secondCard): void
     {
         $this->secondCard = $secondCard;
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(string $currency): void
+    {
+        $this->currency = $currency;
     }
 }

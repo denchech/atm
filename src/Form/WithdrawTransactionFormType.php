@@ -2,20 +2,30 @@
 
 namespace App\Form;
 
-use App\Command\TransactionCommand;
+use App\Command\WithdrawTransactionCommand;
+use App\DBAL\Types\CurrencyType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TransactionFormType extends AbstractType
+class WithdrawTransactionFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('value', IntegerType::class)
-            ->add($options['submit'], SubmitType::class)
+            ->add(
+                'currency',
+                ChoiceType::class,
+                [
+                    'choices'    => CurrencyType::getChoices(),
+                    'empty_data' => CurrencyType::RUBLES,
+                ]
+            )
+            ->add('withdraw', SubmitType::class)
         ;
     }
 
@@ -23,11 +33,8 @@ class TransactionFormType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => TransactionCommand::class,
+                'data_class' => WithdrawTransactionCommand::class,
             ]
         );
-
-        $resolver->setRequired('submit');
-        $resolver->setAllowedTypes('submit', 'string');
     }
 }

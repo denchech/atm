@@ -1,3 +1,6 @@
 notEnoughWherewithal: 'Не достаточно средств.'
 cardNotFound: 'Эта карта не найдена.'
 cannotTransferToSameCard: 'Вы не можете сделать перевод на ту же карту.'
+notAllowedToChooseCurrency: 'Вам не разрешено выбирать валюту.'
+noCashForValue: 'В банкомате нет наличных для такого номринала.'
+valueDoesNotExist: 'Такой номинал не существует.'

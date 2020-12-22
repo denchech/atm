@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use App\DBAL\Types\CardType;
+use App\DBAL\Types\CurrencyType;
 use App\Repository\CardRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Fresh\DoctrineEnumBundle\Exception\EnumType\EnumTypeIsNotRegisteredException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -26,7 +28,12 @@ class Card implements UserInterface
     /**
      * @ORM\Column(type="decimal", precision=12, scale=2)
      */
-    private string $balance;
+    private string $balanceRub = '0';
+
+    /**
+     * @ORM\Column(type="decimal", precision=12, scale=2)
+     */
+    private string $balanceUsd = '0';
 
     /**
      * @ORM\Column(type="CardType", nullable=false)
@@ -43,14 +50,30 @@ class Card implements UserInterface
         $this->number = $number;
     }
 
-    public final function getBalance(): string
+    public final function getBalance(string $currency = CurrencyType::RUBLES): string
     {
-        return $this->balance;
+        switch ($currency) {
+            case CurrencyType::RUBLES:
+                return $this->balanceRub;
+            case CurrencyType::DOLLARS:
+                return $this->balanceUsd;
+            default:
+                throw new EnumTypeIsNotRegisteredException("Currency $currency does not exist.");
+        }
     }
 
-    public final function setBalance(string $balance): void
+    public final function setBalance(string $balance, string $currency = CurrencyType::RUBLES): void
     {
-        $this->balance = $balance;
+        switch ($currency) {
+            case CurrencyType::RUBLES:
+                $this->balanceRub = $balance;
+                break;
+            case CurrencyType::DOLLARS:
+                $this->balanceUsd = $balance;
+                break;
+            default:
+                throw new EnumTypeIsNotRegisteredException("Currency '$currency' does not exist.");
+        }
     }
 
     public final function setPin(string $pin): void
@@ -66,6 +89,26 @@ class Card implements UserInterface
     public function setType(string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getBalanceRub(): string
+    {
+        return $this->balanceRub;
+    }
+
+    public function setBalanceRub(string $balanceRub): void
+    {
+        $this->balanceRub = $balanceRub;
+    }
+
+    public function getBalanceUsd(): string
+    {
+        return $this->balanceUsd;
+    }
+
+    public function setBalanceUsd(string $balanceUsd): void
+    {
+        $this->balanceUsd = $balanceUsd;
     }
 
     public function getRoles(): array

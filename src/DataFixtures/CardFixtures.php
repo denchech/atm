@@ -12,6 +12,11 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class CardFixtures extends Fixture
 {
     public const COUNT = 6;
+    private const TYPES = [
+        CardType::DEFAULT,
+        CardType::CREDIT,
+        CardType::PREMIUM,
+    ];
 
     private UserPasswordEncoderInterface $passwordEncoder;
 
@@ -27,7 +32,7 @@ class CardFixtures extends Fixture
             $debitCard->setNumber(str_repeat('0', 9 - intdiv($i, 10)).$i);
             $debitCard->setPin($this->passwordEncoder->encodePassword($debitCard, '0000'));
             $debitCard->setBalance('1000.00');
-            $debitCard->setType(CardType::getValues()[$i % count(CardType::getValues())]);
+            $debitCard->setType(self::TYPES[$i % count(self::TYPES)]);
 
             if (CardType::PREMIUM === $debitCard->getType()) {
                 $debitCard->setBalance('1000.0', CurrencyType::DOLLARS);

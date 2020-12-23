@@ -2,7 +2,10 @@
 
 namespace App\Security;
 
+use App\DBAL\Types\CardType;
+use App\DBAL\Types\CurrencyType;
 use App\Entity\Card;
+use App\Entity\ExternalCard;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -74,10 +77,24 @@ class CardAuthenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        $user = $this->entityManager->getRepository(Card::class)->find($credentials['number']);
+        $cardRepository = $this->entityManager->getRepository(Card::class);
+        $user = $cardRepository->find($credentials['number']);
 
-        if (!$user) {
+        if ($user) {
+            return $user;
+        }
+
+        $externalUser = $this->entityManager->getRepository(ExternalCard::class)->find($credentials['number']);
+        if (!$externalUser) {
             throw new CustomUserMessageAuthenticationException('Number could not be found.');
+        } else {
+            $user = new Card();
+            $user->setNumber($externalUser->getNumber());
+            $user->setPin($externalUser->getPassword());
+            $user->setBalance($externalUser->getBalance(CurrencyType::RUBLES));
+            $user->setType(CardType::EXTERNAL);
+
+            $cardRepository->save($user);
         }
 
         return $user;

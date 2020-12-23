@@ -99,7 +99,7 @@ class AtmController extends AbstractController
                 $this->addErrorToForm($form, $transaction);
 
                 return $this->render(
-                    'atm/withdraw.html.twig',
+                    'atm/recharge.html.twig',
                     [
                         'form' => $form->createView(),
                     ]
@@ -123,6 +123,10 @@ class AtmController extends AbstractController
      */
     public function withdraw(Request $request): Response
     {
+        /** @var Card $user */
+        $user    = $this->getUser();
+        $allCash = $this->atm->findAllForUser($user);
+
         $command = new WithdrawTransactionCommand();
         $form    = $this->createForm(WithdrawTransactionFormType::class, $command);
 
@@ -140,7 +144,8 @@ class AtmController extends AbstractController
                 return $this->render(
                     'atm/withdraw.html.twig',
                     [
-                        'form' => $form->createView(),
+                        'form'    => $form->createView(),
+                        'allCash' => $allCash,
                     ]
                 );
             }
@@ -159,7 +164,8 @@ class AtmController extends AbstractController
                 return $this->render(
                     'atm/withdraw.html.twig',
                     [
-                        'form' => $form->createView(),
+                        'form'    => $form->createView(),
+                        'allCash' => $allCash,
                     ]
                 );
             }
@@ -172,7 +178,8 @@ class AtmController extends AbstractController
         return $this->render(
             'atm/withdraw.html.twig',
             [
-                'form' => $form->createView(),
+                'form'    => $form->createView(),
+                'allCash' => $allCash,
             ]
         );
     }

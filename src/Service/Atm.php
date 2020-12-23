@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
+use App\DBAL\Types\CardType;
 use App\DBAL\Types\CurrencyType;
+use App\Entity\CardInterface;
 use App\Entity\Cash;
 use App\Repository\CashRepository;
 
@@ -77,5 +79,10 @@ class Atm
     public function findCashByCurrencyAndValue(string $currency, int $value): ?Cash
     {
         return $this->cashRepository->findCashByCurrencyAndValue($currency, $value);
+    }
+
+    public function findAllForUser(CardInterface $card): array
+    {
+        return $this->cashRepository->findAllForUser(CardType::PREMIUM === $card->getType());
     }
 }

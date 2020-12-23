@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * @ORM\Entity(repositoryClass=CardRepository::class)
  */
-class Card implements UserInterface
+class Card implements UserInterface, CardInterface
 {
     /**
      * @ORM\Id
@@ -40,7 +40,7 @@ class Card implements UserInterface
      */
     private string $type;
 
-    public final function getNumber(): ?int
+    public final function getNumber(): string
     {
         return $this->number;
     }

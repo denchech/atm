@@ -2,9 +2,11 @@
 
 namespace App\Service;
 
+use App\DBAL\Types\CardType;
 use App\Entity\Card;
 use App\Entity\Transaction;
 use App\Repository\CardRepository;
+use App\Repository\ExternalCardRepository;
 use App\Repository\TransactionRepository;
 
 class BankSystem
@@ -13,10 +15,17 @@ class BankSystem
 
     private TransactionRepository $transactionRepository;
 
-    public function __construct(CardRepository $cardRepository, TransactionRepository $transactionRepository)
+    private ExternalCardRepository $externalCardRepository;
+
+    public function __construct(
+        CardRepository $cardRepository,
+        TransactionRepository $transactionRepository,
+        ExternalCardRepository $externalCardRepository
+    )
     {
         $this->cardRepository        = $cardRepository;
         $this->transactionRepository = $transactionRepository;
+        $this->externalCardRepository = $externalCardRepository;
     }
 
     public function findCard(string $number): ?Card
@@ -26,6 +35,13 @@ class BankSystem
 
     public function saveCard(Card $card): void
     {
+        if (CardType::EXTERNAL === $card->getType()) {
+            $externalCard = $this->externalCardRepository->find($card->getNumber());
+            $externalCard->setBalance($card->getBalance());
+
+            $this->externalCardRepository->save($externalCard);
+        }
+
         $this->cardRepository->save($card);
     }
 

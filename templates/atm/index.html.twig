@@ -2,7 +2,7 @@
 
 {% block title %}ATM{% endblock %}
 
-{% block body %}
+{% block user_body %}
     {% if is_granted('ROLE_RECHARGE') %}
     <a href="{{ path('recharge') }}">Recharge</a>
     {% endif %}

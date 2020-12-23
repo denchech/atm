@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\DBAL\Types\CurrencyType;
 use App\Entity\Cash;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -69,5 +70,22 @@ class CashRepository extends ServiceEntityRepository
                     ->getQuery()
                     ->getResult()
             ;
+    }
+
+    public function findAllForUser(bool $hasPermissionForCurrency): array
+    {
+        $qb = $this->createQueryBuilder('c')
+                   ->select('c.currency', 'c.value')
+                   ->addOrderBy('c.currency')
+                   ->addOrderBy('c.value')
+        ;
+
+        if (!$hasPermissionForCurrency) {
+            $qb->andWhere('c.currency = :currency')
+               ->setParameter('currency', CurrencyType::RUBLES)
+            ;
+        }
+
+        return $qb->getQuery()->getArrayResult();
     }
 }

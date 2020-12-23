@@ -4,3 +4,11 @@
     <a class="nav-item nav-link " href="{{ path('app_logout') }}">Return Card</a>
     <a class="nav-item nav-link " href="{{ path('index') }}">Choose Operation</a>
 {% endblock %}
+
+{% block body %}
+    {% if is_granted('ROLE_EXTERNAL') %}
+        Commission for operations is <b>{{ commission }}%</b><br>
+    {% endif %}
+    {% block user_body %}
+        {% endblock %}
+{% endblock %}

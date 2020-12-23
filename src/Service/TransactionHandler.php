@@ -13,9 +13,12 @@ class TransactionHandler
 {
     private BankSystem $bankSystem;
 
-    public function __construct(BankSystem $bankSystem)
+    private string $commission;
+
+    public function __construct(BankSystem $bankSystem, string $commission)
     {
         $this->bankSystem = $bankSystem;
+        $this->commission = bcmul($commission, '0.01', 2);
     }
 
     public function process(Transaction $transaction): Transaction
@@ -45,7 +48,6 @@ class TransactionHandler
 
     private function recharge(Transaction $transaction): void
     {
-        $value    = $transaction->getValue();
         $card     = $transaction->getFirstCard();
         $currency = $transaction->getCurrency();
         $balance  = $card->getBalance($currency);
@@ -61,6 +63,8 @@ class TransactionHandler
 
             return;
         }
+
+        $value = $this->getValueWithCommission($transaction);
 
         $card->setBalance(bcadd($balance, $value, 2), $currency);
         $transaction->setStatus(TransactionStatusType::FINISHED);
@@ -84,6 +88,8 @@ class TransactionHandler
 
             return;
         }
+
+        $value = $this->getValueWithCommission($transaction);
 
         if (-1 === bccomp($balance, $value, 2)) {
             $transaction->setStatus(TransactionStatusType::CANCELLED);
@@ -126,7 +132,6 @@ class TransactionHandler
         }
 
         $currency = $transaction->getCurrency();
-        $value    = $transaction->getValue();
 
         $firstCard    = $transaction->getFirstCard();
         $firstBalance = $firstCard->getBalance($currency);
@@ -149,6 +154,8 @@ class TransactionHandler
             return;
         }
 
+        $value = $transaction->getValue();
+
         if (-1 === bccomp($firstBalance, $value, 2)) {
             $transaction->setStatus(TransactionStatusType::CANCELLED);
             $transaction->setError(
@@ -159,6 +166,9 @@ class TransactionHandler
             );
         } else {
             $firstCard->setBalance(bcsub($firstBalance, $value, 2), $currency);
+
+            $value = $this->getValueWithCommission($transaction);
+
             $secondCard->setBalance(bcadd($secondBalance, $value, 2), $currency);
             $transaction->setStatus(TransactionStatusType::FINISHED);
         }
@@ -171,5 +181,26 @@ class TransactionHandler
         $error->setPath($path);
 
         return $error;
+    }
+
+    private function getValueWithCommission(Transaction $transaction): string
+    {
+        $firstCard  = $transaction->getFirstCard();
+        $secondCard = $transaction->getSecondCard();
+        $value      = $transaction->getValue();
+        if (
+            CardType::EXTERNAL === $firstCard->getType()
+            || (null !== $secondCard && CardType::EXTERNAL === $secondCard->getType())
+        ) {
+            if (OperationType::WITHDRAWAL === $transaction->getOperation()) {
+                $commissionMultiplier = bcadd('1.00', $this->commission, 2);
+            } else {
+                $commissionMultiplier = bcsub('1.00', $this->commission, 2);
+            }
+
+            $value = bcmul($value, $commissionMultiplier, 2);
+        }
+
+        return $value;
     }
 }

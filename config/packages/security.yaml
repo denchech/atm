@@ -3,6 +3,8 @@ security:
     encoders:
         App\Entity\Card:
             algorithm: auto
+        App\Entity\ExternalCard:
+            algorithm: auto
         App\Entity\Employee:
             algorithm: auto
 
@@ -71,6 +73,7 @@ security:
         ROLE_DEFAULT: [ROLE_RECHARGE, ROLE_WITHDRAWAL, ROLE_TRANSFER]
         ROLE_CREDIT: [ROLE_RECHARGE]
         ROLE_PREMIUM: [ROLE_DEFAULT, ROLE_CURRENCY_OPERATION]
+        ROLE_EXTERNAL: [ROLE_DEFAULT]
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used

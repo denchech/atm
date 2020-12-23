@@ -3,6 +3,12 @@
 {% block title %}Withdraw{% endblock %}
 
 {% block body %}
+    <h2>Available cash:</h2>
+    <h3>
+    {% for cash in allCash %}
+        {{ cash['value'] }}{{ cash['currency']|readable_enum('CurrencyType') }}
+    {% endfor %}
+    </h3>
     {{ form_start(form) }}
     {% if not is_granted('ROLE_CURRENCY_OPERATION') %}
         {{ form_row(form.currency, {'disabled': 'disabled'}) }}

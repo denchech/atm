@@ -2,7 +2,7 @@
 
 {% block title %}Transfer{% endblock %}
 
-{% block body %}
+{% block user_body %}
     {{ form_start(form) }}
     {% if not is_granted('ROLE_CURRENCY_OPERATION') %}
         {{ form_row(form.currency, {'disabled': 'disabled'}) }}

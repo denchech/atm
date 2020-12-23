@@ -4,12 +4,18 @@
 
 {% block user_body %}
     {% if is_granted('ROLE_RECHARGE') %}
-    <a href="{{ path('recharge') }}">Recharge</a>
+        <a href="{{ path('recharge') }}">Recharge</a>
     {% endif %}
     {% if is_granted('ROLE_WITHDRAWAL') %}
-    <a href="{{ path('withdraw') }}">Withdraw</a>
+        <a href="{{ path('withdraw') }}">Withdraw</a>
     {% endif %}
     {% if is_granted('ROLE_TRANSFER') %}
-    <a href="{{ path('transfer') }}">Transfer</a>
+        <a href="{{ path('transfer') }}">Transfer</a>
+    {% endif %}
+    {% if is_granted('ROLE_CLIENT') %}
+        <a href="{{ path('statement') }}">Statement</a>
+    {% endif %}
+    {% if is_granted('ROLE_CLIENT') %}
+        <a href="{{ path('balance') }}">Balance</a>
     {% endif %}
 {% endblock %}

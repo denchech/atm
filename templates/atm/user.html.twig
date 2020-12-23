@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block body %}
-    {% if is_granted('ROLE_EXTERNAL') %}
+    {% if not is_granted('ROLE_CLIENT') %}
         Commission for operations is <b>{{ commission }}%</b><br>
     {% endif %}
     {% block user_body %}

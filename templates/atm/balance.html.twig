@@ -1,0 +1,9 @@
+{% extends 'atm/user.html.twig' %}
+
+{% block body %}
+    <h1>Balance: </h1>
+    <h2>{{ balanceRu }} {{ 'R'|readable_enum('CurrencyType') }}</h2>
+    {% if is_granted('ROLE_CURRENCY_OPERATION') %}
+        <h2>{{ balanceUsd }} {{ 'D'|readable_enum('CurrencyType') }}</h2>
+    {% endif %}
+{% endblock %}

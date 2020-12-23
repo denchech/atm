@@ -49,4 +49,13 @@ class BankSystem
     {
         $this->transactionRepository->save($transaction);
     }
+
+    /**
+     * @param Card $card
+     * @return Transaction[]
+     */
+    public function getTransactions(Card $card): array
+    {
+        return $this->transactionRepository->findTransactionsByCardNumber($card->getNumber());
+    }
 }

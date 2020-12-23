@@ -229,6 +229,43 @@ class AtmController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/statement", name="statement")
+     * @IsGranted("ROLE_CLIENT")
+     */
+    public function statement(): Response
+    {
+        /** @var Card $card */
+        $card = $this->getUser();
+
+        $statement = $this->bankSystem->getTransactions($card);
+
+        return $this->render(
+            'atm/statement.html.twig',
+            [
+                'statement' => $statement,
+            ]
+        );
+    }
+
+    /**
+     * @Route("/balance", name="balance")
+     * @IsGranted("ROLE_CLIENT")
+     */
+    public function balance(): Response
+    {
+        /** @var Card $card */
+        $card = $this->getUser();
+
+        return $this->render(
+            'atm/balance.html.twig',
+            [
+                'balanceRu'  => $card->getBalanceRub(),
+                'balanceUsd' => $card->getBalanceUsd(),
+            ]
+        );
+    }
+
     private function success(Transaction $transaction): Response
     {
         return $this->render(

@@ -2,6 +2,10 @@
 
 {% block title %}Log in{% endblock %}
 
+{% block navigation %}
+    <a class="nav-item nav-link" href="{{ path('employee_cash') }}">Add cash</a>
+{% endblock %}
+
 {% block body %}
 <form method="post">
     {% if error %}

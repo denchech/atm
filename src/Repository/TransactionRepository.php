@@ -28,21 +28,22 @@ class TransactionRepository extends ServiceEntityRepository
         $manager->flush($transaction);
     }
 
-//    /**
-//     * @param Card $card
-//     * @return Transaction[]
-//     */
-//    public function findTransactionByCard(Card $card): array
-//    {
-//        $query = $this->createQueryBuilder('t')
-//                      ->select('t')
-//                      ->join('t.firstCard', 'c1')
-//                      ->join('t.secondCard', 'c2')
-//                      ->where('c1.number = :cardNumber or c2.number = :cardNumber')
-//                      ->setParameter('cardNumber', $card->getNumber())
-//                      ->getQuery()
-//        ;
-//
-//        return $query->getArrayResult();
-//    }
+    /**
+     * @param string $number
+     * @return Transaction[]
+     */
+    public function findTransactionsByCardNumber(string $number): array
+    {
+        $query = $this->createQueryBuilder('t')
+                      ->select('t')
+                      ->join('t.firstCard', 'c1')
+                      ->leftJoin('t.secondCard', 'c2')
+                      ->where('c1.number = :cardNumber')
+                      ->orWhere('c2.number = :cardNumber')
+                      ->setParameter('cardNumber', $number)
+                      ->getQuery()
+        ;
+
+        return $query->getResult();
+    }
 }

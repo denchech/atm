@@ -71,11 +71,6 @@ class Atm
         }
     }
 
-    public function cashByCurrencyAndValueExists(string $currency, int $value): bool
-    {
-        return null !== $this->cashRepository->findCashByCurrencyAndValue($currency, $value);
-    }
-
     public function findCashByCurrencyAndValue(string $currency, int $value): ?Cash
     {
         return $this->cashRepository->findCashByCurrencyAndValue($currency, $value);

@@ -21,7 +21,7 @@ class TransactionHandler
         $this->commission = bcmul($commission, '0.01', 2);
     }
 
-    public function process(Transaction $transaction): Transaction
+    public function process(Transaction $transaction): void
     {
         switch ($transaction->getOperation()) {
             case OperationType::RECHARGE:
@@ -42,8 +42,6 @@ class TransactionHandler
             $this->bankSystem->saveCard($transaction->getFirstCard());
             null === $transaction->getSecondCard() ?: $this->bankSystem->saveCard($transaction->getSecondCard());
         }
-
-        return $transaction;
     }
 
     private function recharge(Transaction $transaction): void
@@ -72,7 +70,6 @@ class TransactionHandler
 
     private function withdraw(Transaction $transaction): void
     {
-        $value    = $transaction->getValue();
         $card     = $transaction->getFirstCard();
         $currency = $transaction->getCurrency();
         $balance  = $card->getBalance($currency);

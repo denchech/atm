@@ -73,7 +73,8 @@ class AtmController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$this->atm->cashByCurrencyAndValueExists($command->getCurrency(), $command->getValue())) {
+            $cash = $this->atm->findCashByCurrencyAndValue($command->getCurrency(), $command->getValue());
+            if (null === $cash) {
                 $message = $this->translator->trans(CashError::VALUE_DOES_NOT_EXIST);
                 $form->get('value')->addError(new FormError($message));
 
@@ -105,6 +106,10 @@ class AtmController extends AbstractController
                     ]
                 );
             }
+
+            $oldCashCount = $cash->getCount();
+            $cash->setCount($oldCashCount + $command->getCount());
+            $this->atm->saveCash($cash);
 
             return $this->success($transaction);
         }

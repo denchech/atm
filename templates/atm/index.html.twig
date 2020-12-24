@@ -3,19 +3,21 @@
 {% block title %}ATM{% endblock %}
 
 {% block user_body %}
-    {% if is_granted('ROLE_RECHARGE') %}
-        <a href="{{ path('recharge') }}">Recharge</a>
-    {% endif %}
-    {% if is_granted('ROLE_WITHDRAWAL') %}
-        <a href="{{ path('withdraw') }}">Withdraw</a>
-    {% endif %}
-    {% if is_granted('ROLE_TRANSFER') %}
-        <a href="{{ path('transfer') }}">Transfer</a>
-    {% endif %}
-    {% if is_granted('ROLE_CLIENT') %}
-        <a href="{{ path('statement') }}">Statement</a>
-    {% endif %}
-    {% if is_granted('ROLE_CLIENT') %}
-        <a href="{{ path('balance') }}">Balance</a>
-    {% endif %}
+    <main class="d-flex flex-column justify-content-center">
+        {% if is_granted('ROLE_RECHARGE') %}
+            <a href="{{ path('recharge') }}" class="btn btn-light m-1">Recharge</a>
+        {% endif %}
+        {% if is_granted('ROLE_WITHDRAWAL') %}
+            <a href="{{ path('withdraw') }}" class="btn btn-light m-1">Withdraw</a>
+        {% endif %}
+        {% if is_granted('ROLE_TRANSFER') %}
+            <a href="{{ path('transfer') }}" class="btn btn-light m-1">Transfer</a>
+        {% endif %}
+        {% if is_granted('ROLE_CLIENT') %}
+            <a href="{{ path('statement') }}" class="btn btn-light m-1">Statement</a>
+        {% endif %}
+        {% if is_granted('ROLE_CLIENT') %}
+            <a href="{{ path('balance') }}" class="btn btn-light m-1">Balance</a>
+        {% endif %}
+    </main>
 {% endblock %}

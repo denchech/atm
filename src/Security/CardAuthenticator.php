@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Security;
@@ -27,6 +28,9 @@ class CardAuthenticator extends AbstractFormLoginAuthenticator
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'app_login';
+
+    public const LOGIN_ATTEMPTS     = 'login.attempts';
+    public const MAX_LOGIN_ATTEMPTS = 3;
 
     private EntityManagerInterface $entityManager;
 
@@ -56,6 +60,10 @@ class CardAuthenticator extends AbstractFormLoginAuthenticator
 
     public function getCredentials(Request $request)
     {
+        if (self::MAX_LOGIN_ATTEMPTS <= $request->getSession()->get(self::LOGIN_ATTEMPTS, 0)) {
+            throw new CustomUserMessageAuthenticationException('Max amount of login attempts exceeded');
+        }
+
         $credentials = [
             'number'     => $request->request->get('number'),
             'password'   => $request->request->get('password'),
@@ -78,7 +86,7 @@ class CardAuthenticator extends AbstractFormLoginAuthenticator
         }
 
         $cardRepository = $this->entityManager->getRepository(Card::class);
-        $user = $cardRepository->find($credentials['number']);
+        $user           = $cardRepository->find($credentials['number']);
 
         if ($user) {
             return $user;
@@ -112,6 +120,16 @@ class CardAuthenticator extends AbstractFormLoginAuthenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
         return new RedirectResponse($this->urlGenerator->generate('index'));
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    {
+        if ($request->hasSession()) {
+            $attempts = $request->getSession()->get(self::LOGIN_ATTEMPTS, 0);
+            $request->getSession()->set(self::LOGIN_ATTEMPTS, ++$attempts);
+        }
+
+        return parent::onAuthenticationFailure($request, $exception);
     }
 
     protected function getLoginUrl()

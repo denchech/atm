@@ -18,7 +18,7 @@ class TransactionHandlerTest extends TestCase
     private const FIRST_CARD_NUMBER  = '0000000000';
     private const SECOND_CARD_NUMBER = '0000000000';
     private const VALUE              = '10.50';
-    private const COMMISION          = '10.00';
+    private const COMMISSION         = '10.00';
 
     private BankSystem $bankSystem;
 
@@ -27,7 +27,7 @@ class TransactionHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->bankSystem         = $this->createMock(BankSystem::class);
-        $this->transactionHandler = new TransactionHandler($this->bankSystem, self::COMMISION);
+        $this->transactionHandler = new TransactionHandler($this->bankSystem, self::COMMISSION);
     }
 
     /** @noinspection PhpParamsInspection */
@@ -39,9 +39,9 @@ class TransactionHandlerTest extends TestCase
         $this->bankSystem->expects($this->once())->method('saveTransaction')->with($transaction);
         $this->bankSystem->expects($this->once())->method('saveCard')->with($firstCard);
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        TestCase::assertEquals(TransactionStatusType::FINISHED, $result->getStatus());
+        TestCase::assertEquals(TransactionStatusType::FINISHED, $transaction->getStatus());
         TestCase::assertEquals('110.50', $firstCard->getBalance());
     }
 
@@ -54,9 +54,9 @@ class TransactionHandlerTest extends TestCase
         $this->bankSystem->expects($this->once())->method('saveTransaction')->with($transaction);
         $this->bankSystem->expects($this->once())->method('saveCard')->with($firstCard);
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        TestCase::assertEquals(TransactionStatusType::FINISHED, $result->getStatus());
+        TestCase::assertEquals(TransactionStatusType::FINISHED, $transaction->getStatus());
         TestCase::assertEquals('109.45', $firstCard->getBalance());
     }
 
@@ -69,9 +69,9 @@ class TransactionHandlerTest extends TestCase
         $this->bankSystem->expects($this->once())->method('saveTransaction')->with($transaction);
         $this->bankSystem->expects($this->once())->method('saveCard')->with($firstCard);
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        TestCase::assertEquals(TransactionStatusType::FINISHED, $result->getStatus());
+        TestCase::assertEquals(TransactionStatusType::FINISHED, $transaction->getStatus());
         TestCase::assertEquals('89.50', $firstCard->getBalance());
     }
 
@@ -82,9 +82,9 @@ class TransactionHandlerTest extends TestCase
 
         $this->bankSystem->expects($this->never())->method('saveTransaction');
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        $this->assertCancelledOperation($result, TransactionError::NOT_ENOUGH_WHEREWITHAL, 'value');
+        $this->assertCancelledOperation($transaction, TransactionError::NOT_ENOUGH_WHEREWITHAL, 'value');
         TestCase::assertEquals('10.00', $firstCard->getBalance());
     }
 
@@ -98,9 +98,9 @@ class TransactionHandlerTest extends TestCase
         $this->bankSystem->expects($this->exactly(2))->method('saveCard');
         $this->bankSystem->expects($this->once())->method('saveTransaction')->with($transaction);
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        TestCase::assertEquals(TransactionStatusType::FINISHED, $result->getStatus());
+        TestCase::assertEquals(TransactionStatusType::FINISHED, $transaction->getStatus());
         TestCase::assertEquals('89.50', $firstCard->getBalance());
         TestCase::assertEquals('110.50', $secondCard->getBalance());
     }
@@ -115,9 +115,9 @@ class TransactionHandlerTest extends TestCase
         $this->bankSystem->expects($this->exactly(2))->method('saveCard');
         $this->bankSystem->expects($this->once())->method('saveTransaction')->with($transaction);
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        TestCase::assertEquals(TransactionStatusType::FINISHED, $result->getStatus());
+        TestCase::assertEquals(TransactionStatusType::FINISHED, $transaction->getStatus());
         TestCase::assertEquals('89.50', $firstCard->getBalance());
         TestCase::assertEquals('109.45', $secondCard->getBalance());
     }
@@ -130,9 +130,9 @@ class TransactionHandlerTest extends TestCase
         $this->bankSystem->expects($this->never())->method('saveTransaction');
         $this->bankSystem->expects($this->never())->method('saveCard');
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        $this->assertCancelledOperation($result, TransactionError::CANNOT_TRANSFER_TO_SAME_CARD, 'secondCard');
+        $this->assertCancelledOperation($transaction, TransactionError::CANNOT_TRANSFER_TO_SAME_CARD, 'secondCard');
         TestCase::assertEquals('100.00', $firstCard->getBalance());
     }
 
@@ -144,9 +144,9 @@ class TransactionHandlerTest extends TestCase
         $this->bankSystem->expects($this->never())->method('saveTransaction');
         $this->bankSystem->expects($this->never())->method('saveCard');
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        $this->assertCancelledOperation($result, TransactionError::CARD_NOT_FOUND, 'secondCard');
+        $this->assertCancelledOperation($transaction, TransactionError::CARD_NOT_FOUND, 'secondCard');
         TestCase::assertEquals('100.00', $firstCard->getBalance());
     }
 
@@ -156,9 +156,9 @@ class TransactionHandlerTest extends TestCase
         $secondCard  = $this->givenCard(self::SECOND_CARD_NUMBER, '1.00');
         $transaction = $this->givenTransaction(OperationType::TRANSFER, $firstCard, self::VALUE, $secondCard);
 
-        $result = $this->transactionHandler->process($transaction);
+        $this->transactionHandler->process($transaction);
 
-        $this->assertCancelledOperation($result, TransactionError::NOT_ENOUGH_WHEREWITHAL, 'value');
+        $this->assertCancelledOperation($transaction, TransactionError::NOT_ENOUGH_WHEREWITHAL, 'value');
         TestCase::assertEquals('10.00', $firstCard->getBalance());
     }
 

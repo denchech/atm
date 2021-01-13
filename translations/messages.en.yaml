@@ -1,0 +1,6 @@
+notEnoughWherewithal: 'Not enough wherewithal.'
+cardNotFound: 'This card is not found.'
+cannotTransferToSameCard: 'You cannot transfer to the same card.'
+notAllowedToChooseCurrency: 'You are not allowed to choose currency.'
+noCashForValue: 'There is no cash for this value in ATM.'
+valueDoesNotExist: 'This value does not exist.'

@@ -1,0 +1,3 @@
+positive: 'This value must be positive.'
+notBlank: 'This value cannot be blank.'
+mustContainNumber: 'This value must contain only numbers.'

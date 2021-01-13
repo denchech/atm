@@ -1,0 +1,23 @@
+{% extends 'atm/user.html.twig' %}
+
+{% block title %}Success!{% endblock %}
+
+{% block body %}
+    {% for transaction in statement %}
+        <h2>Transaction "{{ transaction.id }}"</h2>
+        <h3>Currency: {{ transaction.currency|readable_enum('CurrencyType') }}</h3>
+        <h3>Operation: {{ transaction.operation|readable_enum('OperationType') }}</h3>
+        <h3>Value: {{ transaction.value }}</h3>
+        {% if transaction.secondCard %}
+            <h3>
+                {% if app.user.number == transaction.secondCard.number %}
+                    From:
+                {% else %}
+                    To:
+                {% endif %}
+                {{ transaction.secondCard.number }}
+            </h3>
+        {% endif %}
+        <br>
+    {% endfor %}
+{% endblock %}

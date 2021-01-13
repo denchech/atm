@@ -1,0 +1,10 @@
+{% extends 'atm/user.html.twig' %}
+
+{% block title %}Success!{% endblock %}
+
+{% block body %}
+    <h1>Success</h1>
+    <h2>Transaction "{{ transactionID }}" is finished</h2>
+    <h3>Operation: {{ operation|readable_enum('OperationType') }}</h3>
+    <h3>Currency: {{ currency|readable_enum('CurrencyType') }}</h3>
+{% endblock %}
